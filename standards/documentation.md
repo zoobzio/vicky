@@ -4,12 +4,23 @@ All packages maintain documentation in a `docs/` directory with consistent struc
 
 ## Directory Structure
 
+Documentation files use numbered prefixes to control ordering:
+
 ```
 docs/
-├── index.md             # Package overview
-├── getting-started.md   # Quick start guide
-├── [topic].md           # Topic-specific documentation
-└── ...
+├── 1.overview.md              # Package overview
+├── 2.learn/                   # Learning materials
+│   ├── 1.quickstart.md
+│   ├── 2.concepts.md
+│   └── ...
+├── 3.guides/                  # How-to guides
+│   ├── 1.[topic].md
+│   └── ...
+├── 4.cookbook/                # Recipes and patterns
+│   └── ...
+└── 5.reference/               # API reference
+    ├── 1.api.md
+    └── ...
 ```
 
 ## Frontmatter
@@ -18,9 +29,14 @@ Documentation files include frontmatter for site publishing:
 
 ```yaml
 ---
-title: Package Name
-description: Brief description of the package
-package: package-name
+title: Article Title
+description: One-line description
+author: zoobzio
+published: YYYY-MM-DD
+updated: YYYY-MM-DD
+tags:
+  - Tag1
+  - Tag2
 ---
 ```
 

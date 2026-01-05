@@ -15,6 +15,8 @@ All packages use a consistent set of configuration files for linting, coverage, 
 
 `.golangci.yml` configures static analysis. All packages should use a consistent linter configuration.
 
+### Minimum Required
+
 ```yaml
 run:
   timeout: 5m
@@ -22,7 +24,6 @@ run:
 linters:
   enable:
     - errcheck
-    - gosimple
     - govet
     - ineffassign
     - staticcheck
@@ -33,20 +34,94 @@ linters-settings:
     check-type-assertions: true
 ```
 
+### Recommended Full Configuration
+
+Production packages should enable additional linters for security and quality:
+
+```yaml
+version: "2"
+
+run:
+  timeout: 5m
+  tests: true
+
+linters:
+  enable:
+    # Required (minimum)
+    - errcheck
+    - govet
+    - ineffassign
+    - staticcheck
+    - unused
+
+    # Security
+    - gosec
+    - noctx
+    - bodyclose
+    - sqlclosecheck
+
+    # Error handling
+    - errorlint
+    - errchkjson
+    - wastedassign
+
+    # Best practices
+    - gocritic
+    - revive
+    - unconvert
+    - dupl
+    - goconst
+    - misspell
+    - prealloc
+    - copyloopvar
+
+  exclusions:
+    rules:
+      - path: _test\.go
+        linters:
+          - dupl
+          - goconst
+          - govet
+
+linters-settings:
+  errcheck:
+    check-type-assertions: true
+    check-blank: true
+
+  govet:
+    enable-all: true
+
+  dupl:
+    threshold: 150
+
+  goconst:
+    min-len: 3
+    min-occurrences: 3
+```
+
+### Linter Categories
+
+| Category | Linters                                              | Purpose                 |
+| -------- | ---------------------------------------------------- | ----------------------- |
+| Required | errcheck, govet, ineffassign, staticcheck, unused    | Core correctness        |
+| Security | gosec, noctx, bodyclose, sqlclosecheck               | Vulnerability detection |
+| Errors   | errorlint, errchkjson, wastedassign                  | Error handling          |
+| Quality  | gocritic, revive, unconvert, dupl, goconst, misspell | Code quality            |
+
 ## Codecov
 
-`.codecov.yml` configures coverage reporting:
+`.codecov.yml` configures coverage reporting. See [testing.md](testing.md#coverage) for threshold rationale.
 
 ```yaml
 coverage:
   status:
     project:
       default:
-        target: auto
+        target: 70%
         threshold: 1%
     patch:
       default:
-        target: auto
+        target: 80%
 ```
 
 ## GoReleaser
@@ -63,8 +138,8 @@ changelog:
   sort: asc
   filters:
     exclude:
-      - '^docs:'
-      - '^test:'
+      - "^docs:"
+      - "^test:"
 ```
 
 ## Development Tools
