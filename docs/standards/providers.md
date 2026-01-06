@@ -4,7 +4,7 @@ Packages that support pluggable implementations use a consistent provider patter
 
 ## When to Use Providers
 
-Use the `pkg/` structure when a package:
+Use provider directories when a package:
 
 - Supports multiple backends (databases, message queues, LLM services)
 - Has pluggable implementations of a core interface
@@ -12,28 +12,30 @@ Use the `pkg/` structure when a package:
 
 ## Directory Structure
 
+Providers live in root-level directories, not nested under `pkg/`:
+
 ```
 /
 ├── api.go                    # Core interface definitions
 ├── [core].go                 # Core implementation
 ├── [core]_test.go
-└── pkg/
-    ├── provider-a/
-    │   ├── provider.go
-    │   └── provider_test.go
-    ├── provider-b/
-    │   ├── provider.go
-    │   └── provider_test.go
-    └── provider-c/
-        ├── provider.go
-        └── provider_test.go
+├── provider-a/
+│   ├── provider.go
+│   └── provider_test.go
+├── provider-b/
+│   ├── provider.go
+│   └── provider_test.go
+└── provider-c/
+    ├── provider.go
+    └── provider_test.go
 ```
 
 ## Examples
 
 | Package | Providers |
 |---------|-----------|
-| herald | amqp, bolt, firestore, jetstream, kafka, nats, redis, etc. |
+| grub | redis, badger, bolt, s3, gcs, azure |
+| herald | amqp, bolt, firestore, jetstream, kafka, nats, redis |
 | zyn | anthropic, gemini, openai |
 | astql | postgres, mysql, mssql, sqlite |
 
@@ -44,9 +46,9 @@ Use the `pkg/` structure when a package:
 Each provider maintains its own unit tests:
 
 ```
-pkg/postgres/
-├── provider.go
-└── provider_test.go     # Unit tests for postgres provider
+postgres/
+├── postgres.go
+└── postgres_test.go     # Unit tests for postgres provider
 ```
 
 ### Integration Tests

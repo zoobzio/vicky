@@ -25,7 +25,9 @@ All packages follow a consistent directory and file organisation.
 │   ├── benchmarks/
 │   └── integration/
 ├── internal/            # Optional: private implementation
-└── pkg/                 # Optional: provider implementations
+├── [provider-a]/        # Optional: provider implementations
+├── [provider-b]/
+└── [provider-c]/
 ```
 
 ## Entry Point
@@ -42,6 +44,6 @@ github.com/zoobzio/[package-name]
 
 Use `internal/` when a package requires private implementation details that should not be importable by external consumers. This is discretionary based on package needs.
 
-## pkg/
+## Providers
 
-Use `pkg/` when a package supports pluggable providers or multiple implementations. See [providers](./providers.md) for details.
+Provider implementations live in root-level directories (e.g., `redis/`, `postgres/`, `s3/`). See [providers](./providers.md) for details.

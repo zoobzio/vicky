@@ -40,7 +40,6 @@ For each item:
 | Item        | Standard                 | When Required        | Check |
 | ----------- | ------------------------ | -------------------- | ----- |
 | `internal/` | Private implementation   | If hiding internals  | [ ]   |
-| `pkg/`      | Provider implementations | If multiple backends | [ ]   |
 
 ---
 
@@ -215,9 +214,18 @@ For each item:
 | test        | Run tests with matrix (Go 1.24, 1.25) | [ ]   |
 | lint        | golangci-lint                         | [ ]   |
 | security    | gosec scanner with SARIF upload       | [ ]   |
-| coverage    | Upload to Codecov                     | [ ]   |
 | benchmark   | Performance tracking                  | [ ]   |
 | ci-complete | Aggregated status check               | [ ]   |
+
+### .github/workflows/coverage.yml
+
+| Item                    | Standard                        | Check |
+| ----------------------- | ------------------------------- | ----- |
+| Triggers                | push to main, pull_request      | [ ]   |
+| Go version              | Latest (1.25)                   | [ ]   |
+| Coverage mode           | atomic                          | [ ]   |
+| Codecov upload          | With token auth                 | [ ]   |
+| PR comments             | Coverage metrics on PRs         | [ ]   |
 
 ### Security Scanning
 
@@ -235,7 +243,6 @@ For each item:
 | Triggers                             | push to main, pull_request to main | [ ]   |
 | Go matrix                            | 1.24 and 1.25                      | [ ]   |
 | Lint on latest Go only               | 1.25                               | [ ]   |
-| Coverage upload on latest Go only    | 1.25                               | [ ]   |
 | golangci-lint action                 | `golangci/golangci-lint-action@v7` | [ ]   |
 | Uses Makefile targets where possible | Consistency with local dev         | [ ]   |
 
@@ -354,9 +361,9 @@ Only complete if package supports multiple backends.
 | Item                              | Standard                   | Check |
 | --------------------------------- | -------------------------- | ----- |
 | Core interfaces in root `api.go`  | Provider interface defined | [ ]   |
-| Providers in `pkg/[provider]/`    | Each provider isolated     | [ ]   |
-| Provider has `provider.go`        | Implementation             | [ ]   |
-| Provider has `provider_test.go`   | Unit tests                 | [ ]   |
+| Providers in `[provider]/`        | Each provider isolated     | [ ]   |
+| Provider has implementation file  | e.g., `redis.go`           | [ ]   |
+| Provider has `_test.go`           | Unit tests                 | [ ]   |
 | No provider-specific Makefile     | Root Makefile handles all  | [ ]   |
 | Integration tests cover providers | In `testing/integration/`  | [ ]   |
 
