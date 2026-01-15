@@ -20,7 +20,6 @@ For each item:
 | Module path                 | `github.com/zoobzio/[package]`                    | [ ]   |
 | Go version                  | `go 1.24` minimum                                 | [ ]   |
 | Toolchain directive         | `toolchain go1.25.x`                              | [ ]   |
-| No unnecessary dependencies | Layer 0 packages: stdlib only (yaml.v3 exception) | [ ]   |
 
 ---
 
@@ -191,7 +190,7 @@ For each item:
 | `clean`            | Remove generated files           | [ ]   |
 | `check`            | Quick validation (test + lint)   | [ ]   |
 | `ci`               | Full CI simulation               | [ ]   |
-| `install-tools`    | Install dev tools via `go install github.com/golangci/golangci-lint/v2/cmd/golangci-lint@v2.x.x` | [ ]   |
+| `install-tools`    | Install dev tools via `go install github.com/golangci/golangci-lint/v2/cmd/golangci-lint@v2.7.2` | [ ]   |
 | `install-hooks`    | Install git hooks                | [ ]   |
 | `help`             | Display available commands       | [ ]   |
 
@@ -254,6 +253,29 @@ For each item:
 | Validate job | Tests and lints before release         | [ ]   |
 | Release job  | Uses `goreleaser/goreleaser-action@v6` | [ ]   |
 | Permissions  | `contents: write`                      | [ ]   |
+
+### Monorepo Submodule Tagging (if applicable)
+
+For repositories with multiple Go modules (subpackages with their own `go.mod`), the release workflow must create prefixed tags for each submodule. This allows consumers to import specific versions of individual modules.
+
+| Item                    | Standard                                           | Check |
+| ----------------------- | -------------------------------------------------- | ----- |
+| Submodule tagging job   | Creates `[module]/v*.*.*` tags for each submodule  | [ ]   |
+| Tag push                | Pushes all submodule tags in single operation      | [ ]   |
+| Runs before GoReleaser  | Submodule tags created before release is published | [ ]   |
+| GORELEASER_CURRENT_TAG  | Set to `${{ github.ref_name }}` to use root tag    | [ ]   |
+
+Example step:
+
+```yaml
+- name: Tag submodules
+  run: |
+    VERSION=${GITHUB_REF#refs/tags/}
+    for mod in json yaml xml msgpack bson; do
+      git tag "${mod}/${VERSION}"
+    done
+    git push origin --tags
+```
 
 ### .github/workflows/codeql.yml
 
