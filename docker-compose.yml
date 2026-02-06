@@ -1,0 +1,176 @@
+services:
+  postgres:
+    image: pgvector/pgvector:pg16
+    environment:
+      POSTGRES_DB: vicky
+      POSTGRES_USER: vicky
+      POSTGRES_PASSWORD: vicky
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U vicky"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  migrate:
+    image: ghcr.io/kukymbr/goose-docker:latest
+    depends_on:
+      postgres:
+        condition: service_healthy
+    volumes:
+      - ./migrations:/migrations:ro
+    environment:
+      GOOSE_DRIVER: postgres
+      GOOSE_DBSTRING: "host=postgres port=5432 user=vicky password=vicky dbname=vicky sslmode=disable"
+      GOOSE_MIGRATION_DIR: /migrations
+
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"
+    volumes:
+      - redisdata:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  minio:
+    image: minio/minio:latest
+    command: server /data --console-address ":9001"
+    environment:
+      MINIO_ROOT_USER: vicky
+      MINIO_ROOT_PASSWORD: vickydev
+    ports:
+      - "9000:9000"
+      - "9001:9001"
+    volumes:
+      - miniodata:/data
+    healthcheck:
+      test: ["CMD", "mc", "ready", "local"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  jaeger:
+    image: jaegertracing/all-in-one:latest
+    environment:
+      COLLECTOR_OTLP_ENABLED: "true"
+    ports:
+      - "16686:16686"  # UI
+
+  loki:
+    image: grafana/loki:latest
+    command: -config.file=/etc/loki/local-config.yaml
+    ports:
+      - "3100:3100"
+    volumes:
+      - lokidata:/loki
+
+  prometheus:
+    image: prom/prometheus:latest
+    volumes:
+      - ./docker/prometheus.yaml:/etc/prometheus/prometheus.yml:ro
+      - prometheusdata:/prometheus
+    ports:
+      - "9090:9090"
+
+  otel-collector:
+    image: otel/opentelemetry-collector-contrib:latest
+    volumes:
+      - ./docker/otel-collector.yaml:/etc/otelcol-contrib/config.yaml:ro
+    ports:
+      - "4318:4318"    # OTLP HTTP
+    depends_on:
+      - jaeger
+      - loki
+      - prometheus
+
+  indexer-go:
+    build:
+      context: .
+      dockerfile: docker/indexer-go.Dockerfile
+    depends_on:
+      minio:
+        condition: service_healthy
+    environment:
+      INDEXER_STORAGE_ENDPOINT: minio:9000
+      INDEXER_STORAGE_ACCESS_KEY: vicky
+      INDEXER_STORAGE_SECRET_KEY: vickydev
+      INDEXER_STORAGE_BUCKET: vicky
+      INDEXER_LISTEN_ADDR: ":9090"
+      OTEL_EXPORTER_OTLP_ENDPOINT: otel-collector:4318
+
+  indexer-typescript:
+    build:
+      context: .
+      dockerfile: docker/indexer-typescript.Dockerfile
+    depends_on:
+      minio:
+        condition: service_healthy
+    environment:
+      INDEXER_STORAGE_ENDPOINT: minio:9000
+      INDEXER_STORAGE_ACCESS_KEY: vicky
+      INDEXER_STORAGE_SECRET_KEY: vickydev
+      INDEXER_STORAGE_BUCKET: vicky
+      INDEXER_LISTEN_ADDR: ":9090"
+      OTEL_EXPORTER_OTLP_ENDPOINT: otel-collector:4318
+
+  chunker:
+    build:
+      context: .
+      dockerfile: docker/chunker.Dockerfile
+    environment:
+      CHUNKER_LISTEN_ADDR: ":9091"
+      OTEL_EXPORTER_OTLP_ENDPOINT: otel-collector:4318
+
+  vicky:
+    build:
+      context: .
+      dockerfile: Dockerfile.dev
+    env_file:
+      - .env
+    volumes:
+      - .:/app
+    depends_on:
+      postgres:
+        condition: service_healthy
+      migrate:
+        condition: service_completed_successfully
+      redis:
+        condition: service_healthy
+      minio:
+        condition: service_healthy
+    environment:
+      VICKY_PORT: "8080"
+      VICKY_DB_HOST: postgres
+      VICKY_DB_PORT: "5432"
+      VICKY_DB_NAME: vicky
+      VICKY_DB_USER: vicky
+      VICKY_DB_PASSWORD: vicky
+      VICKY_DB_SSLMODE: disable
+      VICKY_REDIS_ADDR: redis:6379
+      VICKY_STORAGE_ENDPOINT: minio:9000
+      VICKY_STORAGE_ACCESS_KEY: vicky
+      VICKY_STORAGE_SECRET_KEY: vickydev
+      VICKY_STORAGE_BUCKET: vicky
+      VICKY_STORAGE_USE_SSL: "false"
+      VICKY_ENCRYPTION_KEY: "0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef"
+      VICKY_EMBEDDING_PROVIDER: stub
+      VICKY_INDEXER_GO_ADDR: indexer-go:9090
+      VICKY_INDEXER_TS_ADDR: indexer-typescript:9090
+      VICKY_CHUNKER_ADDR: chunker:9091
+      OTEL_EXPORTER_OTLP_ENDPOINT: otel-collector:4318
+    ports:
+      - "8080:8080"
+
+volumes:
+  pgdata:
+  redisdata:
+  miniodata:
+  lokidata:
+  prometheusdata:

@@ -1,0 +1,33 @@
+syntax = "proto3";
+
+package indexer;
+
+option go_package = "github.com/zoobzio/vicky/proto/indexer";
+
+// IndexerService provides SCIP indexing for source code.
+service IndexerService {
+  // Index runs the SCIP indexer against source files in blob storage
+  // and returns the raw SCIP index data.
+  rpc Index(IndexRequest) returns (IndexResult);
+}
+
+// IndexRequest contains the information needed to run a SCIP indexer.
+message IndexRequest {
+  int64 job_id = 1;
+  int64 repository_id = 2;
+  int64 version_id = 3;
+  int64 user_id = 4;
+  string owner = 5;
+  string repo_name = 6;
+  string tag = 7;
+  string commit_sha = 8;
+  string language = 9;
+}
+
+// IndexResult contains the output from a SCIP indexer.
+message IndexResult {
+  int64 job_id = 1;
+  int64 version_id = 2;
+  bytes index_data = 3;
+  string error = 4;
+}

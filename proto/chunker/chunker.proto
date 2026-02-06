@@ -1,0 +1,33 @@
+syntax = "proto3";
+
+package chunker;
+
+option go_package = "github.com/zoobzio/vicky/proto/chunker";
+
+// ChunkerService provides language-aware content chunking.
+service ChunkerService {
+  // Chunk splits file content into semantic chunks using a language-specific parser.
+  rpc Chunk(ChunkRequest) returns (ChunkResponse);
+}
+
+// ChunkRequest contains the information needed to chunk a file.
+message ChunkRequest {
+  string language = 1;
+  string filename = 2;
+  bytes content = 3;
+}
+
+// ChunkResult represents a single semantic chunk extracted from a file.
+message ChunkResult {
+  string content = 1;
+  string symbol = 2;
+  string kind = 3;
+  int32 start_line = 4;
+  int32 end_line = 5;
+  repeated string context = 6;
+}
+
+// ChunkResponse contains the chunks produced from a file.
+message ChunkResponse {
+  repeated ChunkResult chunks = 1;
+}
