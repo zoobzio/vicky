@@ -149,7 +149,10 @@ func (m *MockChunks) SearchByKind(ctx context.Context, userID int64, owner, repo
 type MockUsers struct {
 	OnGet        func(ctx context.Context, key string) (*models.User, error)
 	OnSet        func(ctx context.Context, key string, user *models.User) error
+	OnDelete     func(ctx context.Context, key string) error
 	OnGetByLogin func(ctx context.Context, login string) (*models.User, error)
+	OnList       func(ctx context.Context, filter interface{}, limit, offset int) ([]*models.User, error)
+	OnCount      func(ctx context.Context, filter interface{}) (int, error)
 }
 
 func (m *MockUsers) Get(ctx context.Context, key string) (*models.User, error) {
@@ -166,11 +169,32 @@ func (m *MockUsers) Set(ctx context.Context, key string, user *models.User) erro
 	return nil
 }
 
+func (m *MockUsers) Delete(ctx context.Context, key string) error {
+	if m.OnDelete != nil {
+		return m.OnDelete(ctx, key)
+	}
+	return nil
+}
+
 func (m *MockUsers) GetByLogin(ctx context.Context, login string) (*models.User, error) {
 	if m.OnGetByLogin != nil {
 		return m.OnGetByLogin(ctx, login)
 	}
 	return &models.User{ID: 1000, Login: login, AccessToken: "test-token"}, nil
+}
+
+func (m *MockUsers) List(ctx context.Context, filter interface{}, limit, offset int) ([]*models.User, error) {
+	if m.OnList != nil {
+		return m.OnList(ctx, filter, limit, offset)
+	}
+	return nil, nil
+}
+
+func (m *MockUsers) Count(ctx context.Context, filter interface{}) (int, error) {
+	if m.OnCount != nil {
+		return m.OnCount(ctx, filter)
+	}
+	return 0, nil
 }
 
 // MockGitHub implements contracts.GitHub with function-field overrides.
@@ -559,6 +583,8 @@ type MockJobs struct {
 	OnStart            func(ctx context.Context, id int64) error
 	OnMarkFailed       func(ctx context.Context, id int64, errMsg string) error
 	OnMarkCompleted    func(ctx context.Context, id int64) error
+	OnMarkCancelled    func(ctx context.Context, id int64) error
+	OnIsCancelling     func(ctx context.Context, id int64) (bool, error)
 }
 
 func (m *MockJobs) Get(ctx context.Context, key string) (*models.Job, error) {
@@ -631,6 +657,20 @@ func (m *MockJobs) MarkCompleted(ctx context.Context, id int64) error {
 	return nil
 }
 
+func (m *MockJobs) MarkCancelled(ctx context.Context, id int64) error {
+	if m.OnMarkCancelled != nil {
+		return m.OnMarkCancelled(ctx, id)
+	}
+	return nil
+}
+
+func (m *MockJobs) IsCancelling(ctx context.Context, id int64) (bool, error) {
+	if m.OnIsCancelling != nil {
+		return m.OnIsCancelling(ctx, id)
+	}
+	return false, nil
+}
+
 // MockRepositories implements contracts.Repositories with function-field overrides.
 type MockRepositories struct {
 	OnGet                    func(ctx context.Context, key string) (*models.Repository, error)
@@ -673,6 +713,58 @@ func (m *MockRepositories) GetByUserOwnerAndName(ctx context.Context, userID int
 		return m.OnGetByUserOwnerAndName(ctx, userID, owner, name)
 	}
 	return &models.Repository{}, nil
+}
+
+// MockKeys implements contracts.Keys with function-field overrides.
+type MockKeys struct {
+	OnGet            func(ctx context.Context, key string) (*models.Key, error)
+	OnSet            func(ctx context.Context, key string, apiKey *models.Key) error
+	OnDelete         func(ctx context.Context, key string) error
+	OnGetByKeyHash   func(ctx context.Context, hash string) (*models.Key, error)
+	OnListByUserID   func(ctx context.Context, userID int64) ([]*models.Key, error)
+	OnUpdateLastUsed func(ctx context.Context, id int64) error
+}
+
+func (m *MockKeys) Get(ctx context.Context, key string) (*models.Key, error) {
+	if m.OnGet != nil {
+		return m.OnGet(ctx, key)
+	}
+	return &models.Key{ID: 1, UserID: 1000, Name: "Test Key", KeyHash: "dGVzdGhhc2g=", KeyPrefix: "vky_test", Scopes: []string{"search"}}, nil
+}
+
+func (m *MockKeys) Set(ctx context.Context, key string, apiKey *models.Key) error {
+	if m.OnSet != nil {
+		return m.OnSet(ctx, key, apiKey)
+	}
+	return nil
+}
+
+func (m *MockKeys) Delete(ctx context.Context, key string) error {
+	if m.OnDelete != nil {
+		return m.OnDelete(ctx, key)
+	}
+	return nil
+}
+
+func (m *MockKeys) GetByKeyHash(ctx context.Context, hash string) (*models.Key, error) {
+	if m.OnGetByKeyHash != nil {
+		return m.OnGetByKeyHash(ctx, hash)
+	}
+	return &models.Key{ID: 1, UserID: 1000, Name: "Test Key", KeyHash: hash, KeyPrefix: "vky_test", Scopes: []string{"search"}}, nil
+}
+
+func (m *MockKeys) ListByUserID(ctx context.Context, userID int64) ([]*models.Key, error) {
+	if m.OnListByUserID != nil {
+		return m.OnListByUserID(ctx, userID)
+	}
+	return nil, nil
+}
+
+func (m *MockKeys) UpdateLastUsed(ctx context.Context, id int64) error {
+	if m.OnUpdateLastUsed != nil {
+		return m.OnUpdateLastUsed(ctx, id)
+	}
+	return nil
 }
 
 // MockSymbols implements contracts.Symbols with function-field overrides.

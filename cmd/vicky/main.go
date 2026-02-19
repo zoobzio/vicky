@@ -18,21 +18,22 @@ import (
 	grubminio "github.com/zoobzio/grub/minio"
 	"github.com/zoobzio/rocco/session"
 	"github.com/zoobzio/sum"
-	"github.com/zoobzio/vicky/auth"
-	"github.com/zoobzio/vicky/capacitors"
+	"github.com/zoobzio/vicky/api/auth"
+	"github.com/zoobzio/vicky/api/capacitors"
 	"github.com/zoobzio/vicky/config"
-	"github.com/zoobzio/vicky/contracts"
+	"github.com/zoobzio/vicky/api/contracts"
 	chunkerclient "github.com/zoobzio/vicky/external/chunker"
 	embeddingclient "github.com/zoobzio/vicky/external/embedding"
 	"github.com/zoobzio/vicky/external/github"
 	indexerclient "github.com/zoobzio/vicky/external/indexer"
-	"github.com/zoobzio/vicky/events"
-	"github.com/zoobzio/vicky/handlers"
-	"github.com/zoobzio/vicky/internal/ingest"
+	"github.com/zoobzio/vicky/api/events"
+	"github.com/zoobzio/vicky/api/handlers"
+	"github.com/zoobzio/vicky/api/ingest"
+	vickyauth "github.com/zoobzio/vicky/internal/auth"
 	vickyotel "github.com/zoobzio/vicky/internal/otel"
 	"github.com/zoobzio/vicky/models"
 	"github.com/zoobzio/vicky/stores"
-	"github.com/zoobzio/vicky/wire"
+	"github.com/zoobzio/vicky/api/wire"
 )
 
 func main() {
@@ -77,9 +78,13 @@ func run() error {
 	if err := sum.Config[config.Embedding](ctx, k, nil); err != nil {
 		return fmt.Errorf("failed to load embedding config: %w", err)
 	}
+	if err := sum.Config[config.GitHub](ctx, k, nil); err != nil {
+		return fmt.Errorf("failed to load github config: %w", err)
+	}
 
 	// Retrieve configs from registry
 	appCfg := sum.MustUse[config.App](ctx)
+	ghCfg := sum.MustUse[config.GitHub](ctx)
 	dbCfg := sum.MustUse[config.Database](ctx)
 	encCfg := sum.MustUse[config.Encryption](ctx)
 
@@ -139,6 +144,7 @@ func run() error {
 	sum.Register[contracts.SCIPRelationships](k, allStores.SCIPRelationships)
 	sum.Register[contracts.Sessions](k, allStores.Sessions)
 	sum.Register[contracts.Blobs](k, allStores.Blobs)
+	sum.Register[contracts.Keys](k, allStores.Keys)
 
 	// Register external services
 	sum.Register[contracts.GitHub](k, github.NewClient())
@@ -219,7 +225,7 @@ func run() error {
 	capitan.Emit(ctx, events.StartupWorkerReady)
 
 	// Create OAuth service
-	oauthSvc, err := auth.NewOAuthService(appCfg.GitHub)
+	oauthSvc, err := auth.NewOAuthService(ghCfg)
 	if err != nil {
 		return fmt.Errorf("failed to create oauth service: %w", err)
 	}
@@ -231,7 +237,7 @@ func run() error {
 		Store:       allStores.Sessions,
 		Cookie:      session.CookieConfig{SignKey: []byte(appCfg.SessionSignKey)},
 		Resolve:     oauthSvc.Resolve,
-		RedirectURL: "/",
+		RedirectURL: appCfg.SessionRedirectURL,
 	}
 
 	// Create session handlers
@@ -245,7 +251,7 @@ func run() error {
 		return fmt.Errorf("failed to create callback handler: %w", err)
 	}
 
-	logoutHandler, err := session.NewLogoutHandler("/auth/logout", sessionCfg, "/")
+	logoutHandler, err := session.NewLogoutHandler("/auth/logout", sessionCfg, appCfg.SessionRedirectURL)
 	if err != nil {
 		return fmt.Errorf("failed to create logout handler: %w", err)
 	}
@@ -263,10 +269,11 @@ func run() error {
 		WithTag("Versions", "Version ingestion and status tracking").
 		WithTag("Search", "Semantic search across code and documentation").
 		WithTag("Code Intelligence", "SCIP-powered definitions, references, and symbol navigation").
-		WithTagGroup("Identity", "Authentication", "Users").
+		WithTag("API Keys", "Programmatic authentication via API keys").
+		WithTagGroup("Identity", "Authentication", "Users", "API Keys").
 		WithTagGroup("Resources", "Repositories", "Versions").
 		WithTagGroup("Intelligence", "Search", "Code Intelligence").
-		WithAuthenticator(session.Extractor(allStores.Sessions, sessionCfg.Cookie))
+		WithAuthenticator(vickyauth.KeyExtractor(allStores.Keys, session.Extractor(allStores.Sessions, sessionCfg.Cookie)))
 	svc.Handle(loginHandler, callbackHandler, logoutHandler)
 	svc.Handle(handlers.All()...)
 

@@ -26,7 +26,7 @@ func NewChunks(db *sqlx.DB, renderer astql.Renderer) (*Chunks, error) {
 
 // ListByUserRepoAndTag retrieves all chunks for a version.
 func (s *Chunks) ListByUserRepoAndTag(ctx context.Context, userID int64, owner, repoName, tag string) ([]*models.Chunk, error) {
-	return s.Executor().Soy().Query().
+	return s.Query().
 		Where("user_id", "=", "user_id").
 		Where("owner", "=", "owner").
 		Where("repo_name", "=", "repo_name").
@@ -36,7 +36,7 @@ func (s *Chunks) ListByUserRepoAndTag(ctx context.Context, userID int64, owner, 
 
 // ListByUserRepoTagAndPath retrieves all chunks for a document.
 func (s *Chunks) ListByUserRepoTagAndPath(ctx context.Context, userID int64, owner, repoName, tag, path string) ([]*models.Chunk, error) {
-	return s.Executor().Soy().Query().
+	return s.Query().
 		Where("user_id", "=", "user_id").
 		Where("owner", "=", "owner").
 		Where("repo_name", "=", "repo_name").
@@ -47,7 +47,7 @@ func (s *Chunks) ListByUserRepoTagAndPath(ctx context.Context, userID int64, own
 
 // Search performs semantic search across chunks in a version.
 func (s *Chunks) Search(ctx context.Context, userID int64, owner, repoName, tag string, vector []float32, limit int) ([]*models.Chunk, error) {
-	return s.Executor().Soy().Query().
+	return s.Query().
 		Where("user_id", "=", "user_id").
 		Where("owner", "=", "owner").
 		Where("repo_name", "=", "repo_name").
@@ -65,7 +65,7 @@ func (s *Chunks) Search(ctx context.Context, userID int64, owner, repoName, tag 
 
 // SearchByKind performs semantic search filtered by chunk kind.
 func (s *Chunks) SearchByKind(ctx context.Context, userID int64, owner, repoName, tag string, kind models.ChunkKind, vector []float32, limit int) ([]*models.Chunk, error) {
-	return s.Executor().Soy().Query().
+	return s.Query().
 		Where("user_id", "=", "user_id").
 		Where("owner", "=", "owner").
 		Where("repo_name", "=", "repo_name").

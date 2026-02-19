@@ -25,7 +25,7 @@ func NewSCIPOccurrences(db *sqlx.DB, renderer astql.Renderer) (*SCIPOccurrences,
 
 // ListByUserRepoAndTag retrieves all SCIP occurrences for a version.
 func (s *SCIPOccurrences) ListByUserRepoAndTag(ctx context.Context, userID int64, owner, repoName, tag string) ([]*models.SCIPOccurrence, error) {
-	return s.Executor().Soy().Query().
+	return s.Query().
 		Where("user_id", "=", "user_id").
 		Where("owner", "=", "owner").
 		Where("repo_name", "=", "repo_name").
@@ -35,14 +35,14 @@ func (s *SCIPOccurrences) ListByUserRepoAndTag(ctx context.Context, userID int64
 
 // ListByDocument retrieves all SCIP occurrences for a document.
 func (s *SCIPOccurrences) ListByDocument(ctx context.Context, documentID int64) ([]*models.SCIPOccurrence, error) {
-	return s.Executor().Soy().Query().
+	return s.Query().
 		Where("document_id", "=", "document_id").
 		Exec(ctx, map[string]any{"document_id": documentID})
 }
 
 // ListBySymbol retrieves all occurrences of a specific symbol within a version.
 func (s *SCIPOccurrences) ListBySymbol(ctx context.Context, userID int64, owner, repoName, tag, symbol string) ([]*models.SCIPOccurrence, error) {
-	return s.Executor().Soy().Query().
+	return s.Query().
 		Where("user_id", "=", "user_id").
 		Where("owner", "=", "owner").
 		Where("repo_name", "=", "repo_name").

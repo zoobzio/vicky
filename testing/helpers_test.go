@@ -7,7 +7,7 @@ import (
 	"testing"
 
 	"github.com/zoobzio/sum"
-	"github.com/zoobzio/vicky/contracts"
+	"github.com/zoobzio/vicky/api/contracts"
 	"github.com/zoobzio/vicky/models"
 )
 

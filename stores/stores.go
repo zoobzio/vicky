@@ -21,6 +21,7 @@ type Stores struct {
 	SCIPRelationships *SCIPRelationships
 	Sessions          *Sessions
 	Blobs             *Blobs
+	Keys              *Keys
 }
 
 // New creates all stores with the given database connection.
@@ -83,6 +84,11 @@ func New(db *sqlx.DB, renderer astql.Renderer, bucket grub.BucketProvider) (*Sto
 	sessions := NewSessions(db)
 	blobs := NewBlobs(bucket)
 
+	keys, err := NewKeys(db, renderer)
+	if err != nil {
+		return nil, err
+	}
+
 	return &Stores{
 		Users:             users,
 		Repositories:      repositories,
@@ -97,5 +103,6 @@ func New(db *sqlx.DB, renderer astql.Renderer, bucket grub.BucketProvider) (*Sto
 		SCIPRelationships: scipRelationships,
 		Sessions:          sessions,
 		Blobs:             blobs,
+		Keys:              keys,
 	}, nil
 }

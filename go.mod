@@ -11,16 +11,15 @@ require (
 	github.com/minio/minio-go/v7 v7.0.98
 	github.com/sourcegraph/scip v0.6.1
 	github.com/zoobzio/aperture v1.0.2
-	github.com/zoobzio/astql v1.0.5
+	github.com/zoobzio/astql v1.0.6
 	github.com/zoobzio/capitan v1.0.0
 	github.com/zoobzio/cereal v0.1.1
-	github.com/zoobzio/check v0.0.3
+	github.com/zoobzio/check v0.0.4
 	github.com/zoobzio/flux v1.0.1
-	github.com/zoobzio/grub v0.1.6
+	github.com/zoobzio/grub v0.1.8
 	github.com/zoobzio/grub/minio v0.0.0-20260201215402-4f15c321a465
 	github.com/zoobzio/pipz v1.0.4
-	github.com/zoobzio/rocco v0.1.13
-	github.com/zoobzio/sum v0.0.5
+	github.com/zoobzio/sum v0.0.7
 	github.com/zoobzio/vex v0.0.1
 	github.com/zoobzio/vicky/proto v0.0.0-00010101000000-000000000000
 	go.opentelemetry.io/otel v1.40.0
@@ -124,10 +123,11 @@ require (
 	github.com/zoobzio/edamame v1.0.1 // indirect
 	github.com/zoobzio/fig v0.0.1 // indirect
 	github.com/zoobzio/openapi v1.0.1 // indirect
+	github.com/zoobzio/rocco v0.1.13 // indirect
 	github.com/zoobzio/scio v0.0.3 // indirect
 	github.com/zoobzio/sentinel v1.0.2 // indirect
 	github.com/zoobzio/slush v0.0.2 // indirect
-	github.com/zoobzio/soy v1.0.3 // indirect
+	github.com/zoobzio/soy v1.0.5 // indirect
 	github.com/zoobzio/vecna v0.0.2 // indirect
 	go.opentelemetry.io/auto/sdk v1.2.1 // indirect
 	go.opentelemetry.io/contrib/instrumentation/net/http/otelhttp v0.49.0 // indirect
@@ -137,16 +137,16 @@ require (
 	go.uber.org/multierr v1.11.0 // indirect
 	go.uber.org/zap v1.24.0 // indirect
 	go.yaml.in/yaml/v3 v3.0.4 // indirect
-	golang.org/x/crypto v0.47.0 // indirect
-	golang.org/x/exp v0.0.0-20260112195511-716be5621a96 // indirect
-	golang.org/x/mod v0.32.0 // indirect
-	golang.org/x/net v0.49.0 // indirect
+	golang.org/x/crypto v0.48.0 // indirect
+	golang.org/x/exp v0.0.0-20260209203927-2842357ff358 // indirect
+	golang.org/x/mod v0.33.0 // indirect
+	golang.org/x/net v0.50.0 // indirect
 	golang.org/x/sync v0.19.0 // indirect
-	golang.org/x/sys v0.40.0 // indirect
-	golang.org/x/telemetry v0.0.0-20260109210033-bd525da824e2 // indirect
-	golang.org/x/term v0.39.0 // indirect
-	golang.org/x/text v0.33.0 // indirect
-	golang.org/x/tools v0.41.0 // indirect
+	golang.org/x/sys v0.41.0 // indirect
+	golang.org/x/telemetry v0.0.0-20260209163413-e7419c687ee4 // indirect
+	golang.org/x/term v0.40.0 // indirect
+	golang.org/x/text v0.34.0 // indirect
+	golang.org/x/tools v0.42.0 // indirect
 	google.golang.org/genproto/googleapis/api v0.0.0-20260128011058-8636f8732409 // indirect
 	google.golang.org/genproto/googleapis/rpc v0.0.0-20260203192932-546029d2fa20 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect

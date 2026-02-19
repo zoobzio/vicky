@@ -1,8 +1,9 @@
 package config
 
 import (
-	"errors"
 	"strconv"
+
+	"github.com/zoobzio/check"
 )
 
 // Database holds PostgreSQL connection settings.
@@ -17,13 +18,10 @@ type Database struct {
 
 // Validate checks Database configuration for required values.
 func (c Database) Validate() error {
-	if c.Host == "" {
-		return errors.New("host is required")
-	}
-	if c.Name == "" {
-		return errors.New("name is required")
-	}
-	return nil
+	return check.All(
+		check.Str(c.Host, "host").Required().V(),
+		check.Str(c.Name, "name").Required().V(),
+	).Err()
 }
 
 // DSN returns the PostgreSQL connection string.

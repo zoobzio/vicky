@@ -25,7 +25,7 @@ func NewSymbols(db *sqlx.DB, renderer astql.Renderer) (*Symbols, error) {
 
 // ListByUserRepoAndTag retrieves all symbols for a version.
 func (s *Symbols) ListByUserRepoAndTag(ctx context.Context, userID int64, owner, repoName, tag string) ([]*models.Symbol, error) {
-	return s.Executor().Soy().Query().
+	return s.Query().
 		Where("user_id", "=", "user_id").
 		Where("owner", "=", "owner").
 		Where("repo_name", "=", "repo_name").
@@ -35,7 +35,7 @@ func (s *Symbols) ListByUserRepoAndTag(ctx context.Context, userID int64, owner,
 
 // ListExportedByUserRepoAndTag retrieves all exported symbols for a version.
 func (s *Symbols) ListExportedByUserRepoAndTag(ctx context.Context, userID int64, owner, repoName, tag string) ([]*models.Symbol, error) {
-	return s.Executor().Soy().Query().
+	return s.Query().
 		Where("user_id", "=", "user_id").
 		Where("owner", "=", "owner").
 		Where("repo_name", "=", "repo_name").
@@ -47,7 +47,7 @@ func (s *Symbols) ListExportedByUserRepoAndTag(ctx context.Context, userID int64
 // FindRelated finds symbols related to the given document vector.
 // Used for "mentioned here" queries - finding API symbols relevant to a document.
 func (s *Symbols) FindRelated(ctx context.Context, userID int64, owner, repoName, tag string, docVector []float32, limit int) ([]*models.Symbol, error) {
-	return s.Executor().Soy().Query().
+	return s.Query().
 		Where("user_id", "=", "user_id").
 		Where("owner", "=", "owner").
 		Where("repo_name", "=", "repo_name").
@@ -66,7 +66,7 @@ func (s *Symbols) FindRelated(ctx context.Context, userID int64, owner, repoName
 // FindRelatedExported finds exported symbols related to the given document vector.
 // Filters to only public API symbols.
 func (s *Symbols) FindRelatedExported(ctx context.Context, userID int64, owner, repoName, tag string, docVector []float32, limit int) ([]*models.Symbol, error) {
-	return s.Executor().Soy().Query().
+	return s.Query().
 		Where("user_id", "=", "user_id").
 		Where("owner", "=", "owner").
 		Where("repo_name", "=", "repo_name").

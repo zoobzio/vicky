@@ -25,7 +25,7 @@ func NewIngestionConfigs(db *sqlx.DB, renderer astql.Renderer) (*IngestionConfig
 
 // GetByRepositoryID retrieves the config for a repository.
 func (s *IngestionConfigs) GetByRepositoryID(ctx context.Context, repositoryID int64) (*models.IngestionConfig, error) {
-	return s.Executor().Soy().Select().
+	return s.Select().
 		Where("repository_id", "=", "repository_id").
 		Exec(ctx, map[string]any{"repository_id": repositoryID})
 }

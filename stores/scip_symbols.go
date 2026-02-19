@@ -25,7 +25,7 @@ func NewSCIPSymbols(db *sqlx.DB, renderer astql.Renderer) (*SCIPSymbols, error) 
 
 // ListByUserRepoAndTag retrieves all SCIP symbols for a version.
 func (s *SCIPSymbols) ListByUserRepoAndTag(ctx context.Context, userID int64, owner, repoName, tag string) ([]*models.SCIPSymbol, error) {
-	return s.Executor().Soy().Query().
+	return s.Query().
 		Where("user_id", "=", "user_id").
 		Where("owner", "=", "owner").
 		Where("repo_name", "=", "repo_name").
@@ -35,14 +35,14 @@ func (s *SCIPSymbols) ListByUserRepoAndTag(ctx context.Context, userID int64, ow
 
 // ListByDocument retrieves all SCIP symbols for a document.
 func (s *SCIPSymbols) ListByDocument(ctx context.Context, documentID int64) ([]*models.SCIPSymbol, error) {
-	return s.Executor().Soy().Query().
+	return s.Query().
 		Where("document_id", "=", "document_id").
 		Exec(ctx, map[string]any{"document_id": documentID})
 }
 
 // GetBySymbol retrieves a SCIP symbol by its qualified identifier within a version.
 func (s *SCIPSymbols) GetBySymbol(ctx context.Context, userID int64, owner, repoName, tag, symbol string) (*models.SCIPSymbol, error) {
-	return s.Executor().Soy().Select().
+	return s.Select().
 		Where("user_id", "=", "user_id").
 		Where("owner", "=", "owner").
 		Where("repo_name", "=", "repo_name").
@@ -53,7 +53,7 @@ func (s *SCIPSymbols) GetBySymbol(ctx context.Context, userID int64, owner, repo
 
 // ListByKind retrieves SCIP symbols of a specific kind within a version.
 func (s *SCIPSymbols) ListByKind(ctx context.Context, userID int64, owner, repoName, tag string, kind models.SCIPSymbolKind) ([]*models.SCIPSymbol, error) {
-	return s.Executor().Soy().Query().
+	return s.Query().
 		Where("user_id", "=", "user_id").
 		Where("owner", "=", "owner").
 		Where("repo_name", "=", "repo_name").
@@ -64,7 +64,7 @@ func (s *SCIPSymbols) ListByKind(ctx context.Context, userID int64, owner, repoN
 
 // ListByEnclosingSymbol retrieves SCIP symbols with the given enclosing symbol.
 func (s *SCIPSymbols) ListByEnclosingSymbol(ctx context.Context, userID int64, owner, repoName, tag, enclosingSymbol string) ([]*models.SCIPSymbol, error) {
-	return s.Executor().Soy().Query().
+	return s.Query().
 		Where("user_id", "=", "user_id").
 		Where("owner", "=", "owner").
 		Where("repo_name", "=", "repo_name").

@@ -25,7 +25,7 @@ func NewDocuments(db *sqlx.DB, renderer astql.Renderer) (*Documents, error) {
 
 // ListByUserRepoAndTag retrieves all documents for a version.
 func (s *Documents) ListByUserRepoAndTag(ctx context.Context, userID int64, owner, repoName, tag string) ([]*models.Document, error) {
-	return s.Executor().Soy().Query().
+	return s.Query().
 		Where("user_id", "=", "user_id").
 		Where("owner", "=", "owner").
 		Where("repo_name", "=", "repo_name").
@@ -35,7 +35,7 @@ func (s *Documents) ListByUserRepoAndTag(ctx context.Context, userID int64, owne
 
 // GetByUserRepoTagAndPath retrieves a document by natural identifiers.
 func (s *Documents) GetByUserRepoTagAndPath(ctx context.Context, userID int64, owner, repoName, tag, path string) (*models.Document, error) {
-	return s.Executor().Soy().Select().
+	return s.Select().
 		Where("user_id", "=", "user_id").
 		Where("owner", "=", "owner").
 		Where("repo_name", "=", "repo_name").
@@ -47,7 +47,7 @@ func (s *Documents) GetByUserRepoTagAndPath(ctx context.Context, userID int64, o
 // FindSimilar finds documents similar to the given vector across a user's packages.
 // Used for "more like this" queries.
 func (s *Documents) FindSimilar(ctx context.Context, userID int64, vector []float32, limit int) ([]*models.Document, error) {
-	return s.Executor().Soy().Query().
+	return s.Query().
 		Where("user_id", "=", "user_id").
 		OrderByExpr("vector", "<=>", "query_vec", "ASC").
 		Limit(limit).
@@ -59,7 +59,7 @@ func (s *Documents) FindSimilar(ctx context.Context, userID int64, vector []floa
 
 // FindSimilarInVersion finds documents similar to the given vector within a specific version.
 func (s *Documents) FindSimilarInVersion(ctx context.Context, userID int64, owner, repoName, tag string, vector []float32, limit int) ([]*models.Document, error) {
-	return s.Executor().Soy().Query().
+	return s.Query().
 		Where("user_id", "=", "user_id").
 		Where("owner", "=", "owner").
 		Where("repo_name", "=", "repo_name").

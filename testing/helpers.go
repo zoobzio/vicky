@@ -12,9 +12,9 @@ import (
 	rtesting "github.com/zoobzio/rocco/testing"
 	"github.com/zoobzio/sum"
 	sumtest "github.com/zoobzio/sum/testing"
-	"github.com/zoobzio/vicky/contracts"
+	"github.com/zoobzio/vicky/api/contracts"
 	"github.com/zoobzio/vicky/models"
-	"github.com/zoobzio/vicky/wire"
+	"github.com/zoobzio/vicky/api/wire"
 )
 
 // NewJob creates a test Job with sensible defaults.
@@ -228,6 +228,27 @@ func WithRepositories(r contracts.Repositories) RegistryOption {
 func WithSymbols(s contracts.Symbols) RegistryOption {
 	return func(k sum.Key) {
 		sum.Register[contracts.Symbols](k, s)
+	}
+}
+
+// NewKey creates a test Key with sensible defaults.
+// The KeyHash and KeyPrefix are set to plausible test values.
+func NewKey(t *testing.T) *models.Key {
+	t.Helper()
+	return &models.Key{
+		ID:        1,
+		UserID:    1000,
+		Name:      "Test Key",
+		KeyHash:   "dGVzdGhhc2g=",
+		KeyPrefix: "vky_test",
+		Scopes:    []string{"search", "intel"},
+	}
+}
+
+// WithKeys registers a Keys implementation.
+func WithKeys(k contracts.Keys) RegistryOption {
+	return func(sk sum.Key) {
+		sum.Register[contracts.Keys](sk, k)
 	}
 }
 

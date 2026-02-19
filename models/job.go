@@ -19,10 +19,12 @@ type JobStatus string
 
 // JobStatus values.
 const (
-	JobStatusPending   JobStatus = "pending"
-	JobStatusRunning   JobStatus = "running"
-	JobStatusCompleted JobStatus = "completed"
-	JobStatusFailed    JobStatus = "failed"
+	JobStatusPending    JobStatus = "pending"
+	JobStatusRunning    JobStatus = "running"
+	JobStatusCompleted  JobStatus = "completed"
+	JobStatusFailed     JobStatus = "failed"
+	JobStatusCancelling JobStatus = "cancelling"
+	JobStatusCancelled  JobStatus = "cancelled"
 )
 
 // Job tracks an async ingestion pipeline execution.

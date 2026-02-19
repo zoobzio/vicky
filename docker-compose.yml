@@ -61,7 +61,7 @@ services:
     environment:
       COLLECTOR_OTLP_ENABLED: "true"
     ports:
-      - "16686:16686"  # UI
+      - "16686:16686" # UI
 
   loki:
     image: grafana/loki:latest
@@ -74,7 +74,7 @@ services:
   prometheus:
     image: prom/prometheus:latest
     volumes:
-      - ./docker/prometheus.yaml:/etc/prometheus/prometheus.yml:ro
+      - ./tools/dev/prometheus.yaml:/etc/prometheus/prometheus.yml:ro
       - prometheusdata:/prometheus
     ports:
       - "9090:9090"
@@ -82,9 +82,9 @@ services:
   otel-collector:
     image: otel/opentelemetry-collector-contrib:latest
     volumes:
-      - ./docker/otel-collector.yaml:/etc/otelcol-contrib/config.yaml:ro
+      - ./tools/dev/otel-collector.yaml:/etc/otelcol-contrib/config.yaml:ro
     ports:
-      - "4318:4318"    # OTLP HTTP
+      - "4318:4318" # OTLP HTTP
     depends_on:
       - jaeger
       - loki
@@ -93,7 +93,7 @@ services:
   indexer-go:
     build:
       context: .
-      dockerfile: docker/indexer-go.Dockerfile
+      dockerfile: tools/dev/indexer-go.Dockerfile
     depends_on:
       minio:
         condition: service_healthy
@@ -108,7 +108,7 @@ services:
   indexer-typescript:
     build:
       context: .
-      dockerfile: docker/indexer-typescript.Dockerfile
+      dockerfile: tools/dev/indexer-typescript.Dockerfile
     depends_on:
       minio:
         condition: service_healthy
@@ -123,12 +123,12 @@ services:
   chunker:
     build:
       context: .
-      dockerfile: docker/chunker.Dockerfile
+      dockerfile: tools/dev/chunker.Dockerfile
     environment:
       CHUNKER_LISTEN_ADDR: ":9091"
       OTEL_EXPORTER_OTLP_ENDPOINT: otel-collector:4318
 
-  vicky:
+  api:
     build:
       context: .
       dockerfile: Dockerfile.dev
@@ -167,6 +167,29 @@ services:
       OTEL_EXPORTER_OTLP_ENDPOINT: otel-collector:4318
     ports:
       - "8080:8080"
+
+  admin:
+    build:
+      context: .
+      dockerfile: Dockerfile.admin.dev
+    volumes:
+      - .:/app
+    depends_on:
+      postgres:
+        condition: service_healthy
+      migrate:
+        condition: service_completed_successfully
+    environment:
+      VICKY_ADMIN_PORT: "8081"
+      VICKY_DB_HOST: postgres
+      VICKY_DB_PORT: "5432"
+      VICKY_DB_NAME: vicky
+      VICKY_DB_USER: vicky
+      VICKY_DB_PASSWORD: vicky
+      VICKY_DB_SSLMODE: disable
+      OTEL_EXPORTER_OTLP_ENDPOINT: otel-collector:4318
+    ports:
+      - "8081:8081"
 
 volumes:
   pgdata:

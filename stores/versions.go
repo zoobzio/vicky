@@ -26,7 +26,7 @@ func NewVersions(db *sqlx.DB, renderer astql.Renderer) (*Versions, error) {
 
 // ListByUserAndRepo retrieves all versions for a user's repository.
 func (s *Versions) ListByUserAndRepo(ctx context.Context, userID int64, owner, repoName string) ([]*models.Version, error) {
-	return s.Executor().Soy().Query().
+	return s.Query().
 		Where("user_id", "=", "user_id").
 		Where("owner", "=", "owner").
 		Where("repo_name", "=", "repo_name").
@@ -35,7 +35,7 @@ func (s *Versions) ListByUserAndRepo(ctx context.Context, userID int64, owner, r
 
 // GetByUserRepoAndTag retrieves a specific version by natural identifiers.
 func (s *Versions) GetByUserRepoAndTag(ctx context.Context, userID int64, owner, repoName, tag string) (*models.Version, error) {
-	return s.Executor().Soy().Select().
+	return s.Select().
 		Where("user_id", "=", "user_id").
 		Where("owner", "=", "owner").
 		Where("repo_name", "=", "repo_name").
@@ -45,7 +45,7 @@ func (s *Versions) GetByUserRepoAndTag(ctx context.Context, userID int64, owner,
 
 // UpdateStatus updates the ingestion status of a version.
 func (s *Versions) UpdateStatus(ctx context.Context, id int64, status models.VersionStatus, versionErr *string) (*models.Version, error) {
-	return s.Executor().Soy().Modify().
+	return s.Modify().
 		Set("status", "status").
 		Set("error", "error").
 		Set("updated_at", "updated_at").
