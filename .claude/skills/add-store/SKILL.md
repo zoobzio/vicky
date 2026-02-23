@@ -7,6 +7,20 @@ description: Create a data store backed by grub
 
 You are creating a store - a typed wrapper around a data source. All stores in this application use `github.com/zoobzio/grub` which provides provider-agnostic storage with atomization support.
 
+## Shared Layer
+
+Stores are **shared** across all API surfaces. A single store implementation can satisfy multiple contracts — one for the public API, one for the admin API.
+
+**Location:** `stores/`
+
+**Registration:** `stores/stores.go` (aggregate factory)
+
+The same `stores.Users` implementation might satisfy:
+- `api/contracts.Users` (Get, Set, GetByLogin)
+- `admin/contracts.Users` (Get, Set, Delete, List, Count)
+
+Implement all methods any surface might need. Each contract exposes only what that surface requires.
+
 ## Storage Variants
 
 Grub supports four storage variants. Understand what the user is storing to pick the right one:

@@ -7,6 +7,14 @@ description: Create a key-value store using grub.Store
 
 You are creating a key-value store - a typed wrapper around simple key→value storage using `grub.Store[T]`. Use this for caches, sessions, feature flags, or any data accessed by key with optional TTL.
 
+## Shared Layer
+
+Stores are **shared** across all API surfaces.
+
+**Location:** `stores/`
+
+**Registration:** `stores/stores.go`
+
 ## Technical Foundation
 
 KV stores use:

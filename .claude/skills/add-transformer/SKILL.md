@@ -7,9 +7,19 @@ description: Create pure functions for mapping between models and wire types
 
 You are creating transformers - pure functions that convert between internal models and API wire types. Transformers provide a clean separation between domain logic and API contracts.
 
+## Surface Context
+
+Transformers are surface-specific. Before proceeding:
+
+1. **Determine the surface** — Is this for the public API or admin API?
+2. **If unclear, ask** — "Which API surface: public (api/) or admin (admin/)?"
+3. **Apply the correct path:**
+   - Public API: `api/transformers/`
+   - Admin API: `admin/transformers/`
+
 ## Technical Foundation
 
-Transformers live in `transformers/` as package-level functions. They have no side effects - no database calls, no external requests, just data mapping.
+Transformers live in `{surface}/transformers/` as package-level functions. They have no side effects - no database calls, no external requests, just data mapping.
 
 ### Model to Response
 
@@ -180,7 +190,9 @@ Produce a spec for approval:
 ```
 ## Transformer: [Domain]
 
-**File:** transformers/[domain].go
+**Surface:** [api / admin]
+
+**File:** {surface}/transformers/[domain].go
 
 **Functions:**
 
@@ -196,8 +208,10 @@ Produce a spec for approval:
 
 ## After Approval
 
-1. Create `transformers/[domain].go` with imports
+1. Create `{surface}/transformers/[domain].go` with imports
 2. Implement each transformer function
 3. Add doc comments explaining the transformation
 4. If needed, create corresponding wire types (see `/add-wire`)
 5. Use transformers in handlers (see `/add-handler`)
+
+Replace `{surface}` with `api` or `admin` based on the target API surface.

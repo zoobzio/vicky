@@ -7,9 +7,21 @@ description: Create API request and response types for HTTP handlers
 
 You are creating wire types - the structs that define the shape of data at the API boundary. Wire types are what clients send (requests) and receive (responses). They may differ from models (different fields, computed values, masked data).
 
+## Surface Context
+
+Wire types are surface-specific. Before proceeding:
+
+1. **Determine the surface** — Is this for the public API or admin API?
+2. **If unclear, ask** — "Which API surface: public (api/) or admin (admin/)?"
+3. **Apply the correct path:**
+   - Public API: `api/wire/`
+   - Admin API: `admin/wire/`
+
+**Key difference:** Public wire types use `OnSend()` boundaries for masking sensitive data. Admin wire types typically expose full data without masking.
+
 ## Technical Foundation
 
-Wire types live in `wire/` and implement rocco lifecycle interfaces for validation and boundary processing.
+Wire types live in `{surface}/wire/` and implement rocco lifecycle interfaces for validation and boundary processing.
 
 ### Response Types
 
@@ -163,7 +175,7 @@ func (r RepositoryListResponse) Clone() RepositoryListResponse {
 
 ### Boundary Registration
 
-Types that use boundary processing must be registered in `wire/boundary.go`:
+Types that use boundary processing must be registered in `{surface}/wire/boundary.go`:
 
 ```go
 package wire
@@ -279,10 +291,14 @@ Produce a spec for approval:
 
 ## After Approval
 
-1. Create `wire/[domain].go` with the type(s)
+1. Create `{surface}/wire/[domain].go` with the type(s)
 2. Add `Clone()` method
 3. For requests: add `Validate()` method using check
-4. For responses with masking: add `OnSend()` method
+4. For responses with masking (public API): add `OnSend()` method
 5. For requests with hashing: add `OnEntry()` method
-6. If boundary processing used: register in `wire/boundary.go`
-7. Create transformer functions in `transformers/` (see conceptual link to transformers)
+6. If boundary processing used: register in `{surface}/wire/boundary.go`
+7. Create transformer functions in `{surface}/transformers/`
+
+Replace `{surface}` with `api` or `admin` based on the target API surface.
+
+**Note:** Admin wire types typically don't need `OnSend()` boundaries — internal team sees full data.

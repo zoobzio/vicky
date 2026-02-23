@@ -7,6 +7,14 @@ description: Create a blob store using grub.Bucket
 
 You are creating a bucket store - a typed wrapper around blob/object storage using `grub.Bucket[T]`. Use this for files, serialized objects, or any data accessed by path.
 
+## Shared Layer
+
+Stores are **shared** across all API surfaces.
+
+**Location:** `stores/`
+
+**Registration:** `stores/stores.go`
+
 ## Technical Foundation
 
 Bucket stores use:

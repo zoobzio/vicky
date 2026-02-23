@@ -7,6 +7,14 @@ description: Create a vector index store using grub.Index
 
 You are creating a vector index store - a typed wrapper around vector similarity search using `grub.Index[T]`. Use this for embeddings, semantic search, and recommendation systems.
 
+## Shared Layer
+
+Stores are **shared** across all API surfaces.
+
+**Location:** `stores/`
+
+**Registration:** `stores/stores.go`
+
 ## Technical Foundation
 
 Index stores use:

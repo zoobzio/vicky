@@ -7,6 +7,20 @@ description: Create a contract interface in the contracts/ package
 
 You are creating a contract - an interface that defines the API a handler needs from an implementation. Contracts are the bridge between handlers and their dependencies (stores, API clients, service wrappers, etc.).
 
+## Surface Context
+
+Contracts are surface-specific. Before proceeding:
+
+1. **Determine the surface** — Is this for the public API or admin API?
+2. **If unclear, ask** — "Which API surface: public (api/) or admin (admin/)?"
+3. **Apply the correct path:**
+   - Public API: `api/contracts/`
+   - Admin API: `admin/contracts/`
+
+Registration happens in the surface's binary:
+- Public: `cmd/app/main.go`
+- Admin: `cmd/admin/main.go`
+
 ## Prerequisites
 
 **The implementation must exist first.** A contract is extracted from what an implementation can do, not invented in isolation.
@@ -16,7 +30,7 @@ You are creating a contract - an interface that defines the API a handler needs 
 
 ## Technical Foundation
 
-Contracts live in `contracts/` as interfaces:
+Contracts live in `{surface}/contracts/` as interfaces:
 
 ```go
 package contracts
@@ -49,7 +63,7 @@ type Users interface {
 
 Contracts can be satisfied by any struct that implements the interface:
 
-- **Stores** - database-backed implementations (`stores/users.go` → `contracts.Users`)
+- **Stores** - database-backed implementations (`{surface}/stores/users.go` → `contracts.Users`)
 - **API clients** - external service wrappers (`external/github/client.go` → `contracts.GitHub`)
 - **gRPC clients** - service clients (`external/indexer/client.go` → `contracts.Indexer`)
 - **Mocks** - test doubles (`testing/mocks.go` → any contract)
@@ -116,9 +130,13 @@ Wait for the user to approve before writing any files.
 ## After Approval
 
 1. If methods need to be added to the implementation, add them first
-2. Create `contracts/[name].go` with the interface
+2. Create `{surface}/contracts/[name].go` with the interface
 3. Verify the implementation satisfies the interface (compile check)
-4. Update `cmd/app/main.go` to register the implementation:
+4. Update the surface's main.go to register the implementation:
+   - Public: `cmd/app/main.go`
+   - Admin: `cmd/admin/main.go`
    ```go
    sum.Register[contracts.Name](k, implementation)
    ```
+
+Replace `{surface}` with `api` or `admin` based on the target API surface.

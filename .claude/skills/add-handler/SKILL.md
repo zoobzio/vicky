@@ -7,9 +7,23 @@ description: Create HTTP handlers using rocco for API endpoints
 
 You are creating HTTP handlers - the entry points for API requests. Handlers orchestrate calls to contracts and transform data between wire types and models.
 
+## Surface Context
+
+Handlers are surface-specific. Before proceeding:
+
+1. **Determine the surface** — Is this for the public API or admin API?
+2. **If unclear, ask** — "Which API surface: public (api/) or admin (admin/)?"
+3. **Apply the correct path:**
+   - Public API: `api/handlers/`
+   - Admin API: `admin/handlers/`
+
+Registration points vary by surface:
+- Public: `api/handlers/handlers.go`, `api/handlers/errors.go`
+- Admin: `admin/handlers/handlers.go`, `admin/handlers/errors.go`
+
 ## Technical Foundation
 
-Handlers live in `handlers/` as package-level variables using rocco's functional pattern. They are registered with the router via the `All()` function.
+Handlers live in `{surface}/handlers/` as package-level variables using rocco's functional pattern. They are registered with the router via the `All()` function.
 
 ### Basic GET Handler
 
@@ -476,17 +490,19 @@ Produce a spec for approval:
 
 **For standard handlers:**
 
-1. Create handler in `handlers/[domain].go`
-2. Add any new errors to `handlers/errors.go`
-3. Add handler to the `All()` function in `handlers/handlers.go`
+1. Create handler in `{surface}/handlers/[domain].go`
+2. Add any new errors to `{surface}/handlers/errors.go`
+3. Add handler to the `All()` function in `{surface}/handlers/handlers.go`
 4. Create wire types if needed (see `/add-wire`)
 5. Create transformers if needed (see `/add-transformer`)
 
 **For streaming handlers:**
 
-1. Create stream handler in `handlers/[domain].go` using `rocco.NewStreamHandler`
-2. Add any new errors to `handlers/errors.go`
-3. Add handler to the `All()` function in `handlers/handlers.go`
+1. Create stream handler in `{surface}/handlers/[domain].go` using `rocco.NewStreamHandler`
+2. Add any new errors to `{surface}/handlers/errors.go`
+3. Add handler to the `All()` function in `{surface}/handlers/handlers.go`
 4. Create event wire types if needed (see `/add-wire`)
 5. Create transformers for events if needed (see `/add-transformer`)
 6. Implement proper cleanup with `defer` for subscriptions/resources
+
+Replace `{surface}` with `api` or `admin` based on the target API surface.

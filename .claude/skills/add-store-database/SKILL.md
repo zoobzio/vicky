@@ -7,6 +7,16 @@ description: Create a SQL-backed store using sum.Database
 
 You are creating a database store - a typed wrapper around SQL storage using `sum.Database[T]`. This is the most common store variant for structured, queryable data.
 
+## Shared Layer
+
+Stores are **shared** across all API surfaces. A single store can satisfy multiple contracts.
+
+**Location:** `stores/`
+
+**Registration:** `stores/stores.go`
+
+Implement all query methods any surface might need. Different contracts expose different subsets.
+
 ## Technical Foundation
 
 Database stores use these packages:
@@ -178,4 +188,4 @@ Get(ctx, key) (*Model, error)
 1. If model doesn't exist, trigger `/add-model` first
 2. Create `stores/[name].go` with the store implementation
 3. Update `stores/stores.go` to include the new store in the aggregate
-4. The store can now be registered against a contract in main.go
+4. Register the store against surface-specific contracts in each binary's main.go
